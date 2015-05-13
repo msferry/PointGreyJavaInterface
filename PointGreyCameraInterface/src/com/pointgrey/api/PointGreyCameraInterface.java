@@ -9,9 +9,9 @@ public class PointGreyCameraInterface {
 	
 	static {
 		if (System.getProperty("sun.arch.data.model").equals("64")) {
-			System.loadLibrary("flyCapture2JNI_Interface64");
+			System.loadLibrary("FlyCapture2JNI_Interface64");
 		} else {
-			System.loadLibrary("flyCapture2JNI_Interface");
+			System.loadLibrary("FlyCapture2JNI_InterfaceARMHF_2.7.3.19");
 		}
 	}
 	

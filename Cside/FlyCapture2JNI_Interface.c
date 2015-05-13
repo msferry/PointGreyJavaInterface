@@ -425,7 +425,7 @@ JNIEXPORT void JNICALL Java_com_pointgrey_api_PointGreyCameraInterface_storeImag
 		return;
 	}
 
-	error = fc2ConvertImageTo(FC2_PIXEL_FORMAT_BGR, &latestImage, &latestConvertedImage);
+	error = fc2ConvertImageTo(FC2_PIXEL_FORMAT_MONO8, &latestImage, &latestConvertedImage);
 	if(error != FC2_ERROR_OK){
 		sprintf(exBuffer, "JNI Exception in PointGrey Interface: %s \"%s\"", "fc2ConvertImageTo returned error", getError(error));
 		(*env)->ThrowNew(env, (*env)->FindClass(env, "java/lang/Exception"), exBuffer);
