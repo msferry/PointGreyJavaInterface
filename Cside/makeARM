@@ -1,4 +1,4 @@
 export FCSDK=2.7.3.19
 export FCROOT=/home/msferry/programming/flycapture.${FCSDK}_armhf
 echo ${FCROOT}
-gcc -fPIC -I"/usr/lib/jvm/java-7-openjdk-armhf/include" -I"/usr/lib/jvm/java-7-openjdk-armhf/include/linux" -I"${FCROOT}/include" -I"${FCROOT}/include/C" -shared FlyCapture2JNI_Interface.c -o libFlyCapture2JNI_InterfaceARMHF_${FCSDK}.so -L"${FCROOT}/lib/C" -l flycapture-c
+gcc -fPIC -I"/usr/lib/jvm/java-7-openjdk-armhf/include" -I"/usr/lib/jvm/java-7-openjdk-armhf/include/linux" -I"${FCROOT}/include" -I"${FCROOT}/include/C" -shared FlyCapture2JNI_Interface.c -o libFlyCapture2JNI_InterfaceARMHF_${FCSDK}.so -L"${FCROOT}/lib/C" -lflycapture-c
