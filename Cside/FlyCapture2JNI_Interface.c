@@ -256,7 +256,7 @@ JNIEXPORT void JNICALL Java_com_pointgrey_api_PointGreyCameraInterface_startCapt
 		return;
 	}
 
-	SetTimeStamping(TRUE); // this puts the timestamp in the first few pixels (upper left-hand corner) of the image
+	SetTimeStamping(FALSE); // this puts the timestamp in the first few pixels (upper left-hand corner) of the image
 
 	error = fc2CreateImage(&latestImage);
 	if(error != FC2_ERROR_OK){
@@ -407,10 +407,12 @@ JNIEXPORT void JNICALL Java_com_pointgrey_api_PointGreyCameraInterface_storeImag
 	}
 
 	// to preserve timestamp through image conversion
+/*
 	byte0 = latestImage.pData[0];
 	byte1 = latestImage.pData[1];
 	byte2 = latestImage.pData[2];
 	byte3 = latestImage.pData[3];
+*/
 	
 	bufferPtr = (*env)->GetByteArrayElements(env, byteArray, NULL);
 
@@ -426,6 +428,7 @@ JNIEXPORT void JNICALL Java_com_pointgrey_api_PointGreyCameraInterface_storeImag
 	}
 
 	error = fc2ConvertImageTo(FC2_PIXEL_FORMAT_MONO8, &latestImage, &latestConvertedImage);
+        //error = fc2ConvertImageTo(FC2_PIXEL_FORMAT_BGR, &latestImage, &latestConvertedImage);
 	if(error != FC2_ERROR_OK){
 		sprintf(exBuffer, "JNI Exception in PointGrey Interface: %s \"%s\"", "fc2ConvertImageTo returned error", getError(error));
 		(*env)->ThrowNew(env, (*env)->FindClass(env, "java/lang/Exception"), exBuffer);
@@ -433,10 +436,12 @@ JNIEXPORT void JNICALL Java_com_pointgrey_api_PointGreyCameraInterface_storeImag
 	}
 
 	// to preserve timestamp through image conversion
+/*
 	latestConvertedImage.pData[0] = byte0;
 	latestConvertedImage.pData[1] = byte1;
 	latestConvertedImage.pData[2] = byte2;
 	latestConvertedImage.pData[3] = byte3;
+*/
 
 	//Restore latestConvertedImageData to its un-javafied state.
 	error = fc2SetImageData(&latestConvertedImage, NULL, 0);
