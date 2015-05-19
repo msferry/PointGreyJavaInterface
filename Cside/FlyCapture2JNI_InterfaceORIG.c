@@ -76,7 +76,6 @@ char* getError(int error){
 	return output;
 }
 
-/*
 JNIEXPORT jintArray JNICALL Java_com_pointgrey_api_PointGreyCameraInterface_getSupportedModes(JNIEnv *env, jobject thisClass){
 	fc2VideoMode testMode;
 	fc2FrameRate testFramerate;
@@ -129,7 +128,6 @@ JNIEXPORT jintArray JNICALL Java_com_pointgrey_api_PointGreyCameraInterface_getS
 
 	return retJava;
 }
-*/
 
 JNIEXPORT void JNICALL Java_com_pointgrey_api_PointGreyCameraInterface_setCameraMode(JNIEnv *env, jclass thisClass, jint vidMode, jint frameMode){
 	char exBuffer[128];
@@ -145,7 +143,6 @@ JNIEXPORT void JNICALL Java_com_pointgrey_api_PointGreyCameraInterface_setCamera
 	}
 }
  
-/*
 void SetTimeStamping(BOOL enableTimeStamp) {
     fc2EmbeddedImageInfo embeddedInfo;
 
@@ -157,7 +154,6 @@ void SetTimeStamping(BOOL enableTimeStamp) {
 
     fc2SetEmbeddedImageInfo(context, &embeddedInfo);
 }
-*/
 
 JNIEXPORT void JNICALL Java_com_pointgrey_api_PointGreyCameraInterface_createContext(JNIEnv *env, jclass thisClass){
 	int error = fc2CreateContext(&context);
@@ -260,7 +256,7 @@ JNIEXPORT void JNICALL Java_com_pointgrey_api_PointGreyCameraInterface_startCapt
 		return;
 	}
 
-	//SetTimeStamping(FALSE); // this puts the timestamp in the first few pixels (upper left-hand corner) of the image
+	SetTimeStamping(FALSE); // this puts the timestamp in the first few pixels (upper left-hand corner) of the image
 
 	error = fc2CreateImage(&latestImage);
 	if(error != FC2_ERROR_OK){
@@ -401,25 +397,22 @@ JNIEXPORT void JNICALL Java_com_pointgrey_api_PointGreyCameraInterface_storeImag
 	jbyte* bufferPtr;
 	int error;
 	char exBuffer[128];
-	//unsigned char byte0, byte1, byte2, byte3;
+	unsigned char byte0, byte1, byte2, byte3;
 
+	error = fc2RetrieveBuffer(context, &latestImage);
+	if(error != FC2_ERROR_OK){
+		sprintf(exBuffer, "JNI Exception in PointGrey Interface: %s \"%s\"", "fc2RetrieveBuffer returned error", getError(error));
+		(*env)->ThrowNew(env, (*env)->FindClass(env, "java/lang/Exception"), exBuffer);
+		return;
+	}
+
+	// to preserve timestamp through image conversion
 /*
-	error = fc2FireSoftwareTrigger(context);
-	if(error != FC2_ERROR_OK){
-		sprintf(exBuffer, "JNI Exception in PointGrey Interface: %s \"%s\"", "fc2RetrieveBuffer returned error", getError(error));
-		(*env)->ThrowNew(env, (*env)->FindClass(env, "java/lang/Exception"), exBuffer);
-		return;
-	}
-
+	byte0 = latestImage.pData[0];
+	byte1 = latestImage.pData[1];
+	byte2 = latestImage.pData[2];
+	byte3 = latestImage.pData[3];
 */
-        
-        error = fc2RetrieveBuffer(context, &latestImage);
-	if(error != FC2_ERROR_OK){
-		sprintf(exBuffer, "JNI Exception in PointGrey Interface: %s \"%s\"", "fc2RetrieveBuffer returned error", getError(error));
-		(*env)->ThrowNew(env, (*env)->FindClass(env, "java/lang/Exception"), exBuffer);
-		return;
-	}
-
 	
 	bufferPtr = (*env)->GetByteArrayElements(env, byteArray, NULL);
 
@@ -442,6 +435,13 @@ JNIEXPORT void JNICALL Java_com_pointgrey_api_PointGreyCameraInterface_storeImag
 		return;
 	}
 
+	// to preserve timestamp through image conversion
+/*
+	latestConvertedImage.pData[0] = byte0;
+	latestConvertedImage.pData[1] = byte1;
+	latestConvertedImage.pData[2] = byte2;
+	latestConvertedImage.pData[3] = byte3;
+*/
 
 	//Restore latestConvertedImageData to its un-javafied state.
 	error = fc2SetImageData(&latestConvertedImage, NULL, 0);
@@ -453,95 +453,6 @@ JNIEXPORT void JNICALL Java_com_pointgrey_api_PointGreyCameraInterface_storeImag
 
 	//And give Java back its garbage so that it can collect it
 	(*env)->ReleaseByteArrayElements(env, byteArray, bufferPtr, 0); // a bit of cleanup
-        
-/*
-        error = fc2RetrieveBuffer(context, &latestImage);
-	if(error != FC2_ERROR_OK){
-		sprintf(exBuffer, "JNI Exception in PointGrey Interface: %s \"%s\"", "fc2RetrieveBuffer returned error", getError(error));
-		(*env)->ThrowNew(env, (*env)->FindClass(env, "java/lang/Exception"), exBuffer);
-		return;
-	}
-
-
-	//Save a reference to the old pData and size before switching to Java's (Java don't take too kindly to freeing up its memory when you don't possess it)
-	C_convertedImagePData = latestConvertedImage.pData;
-	C_convertedImageDataSize = latestConvertedImage.dataSize;
-
-	error = fc2SetImageData(&latestConvertedImage, (unsigned char*)bufferPtr, (*env)->GetArrayLength(env, byteArray));
-	if(error != FC2_ERROR_OK){
-		sprintf(exBuffer, "JNI Exception in PointGrey Interface: %s \"%s\"", "fc2ImageData returned error", getError(error));
-		(*env)->ThrowNew(env, (*env)->FindClass(env, "java/lang/Exception"), exBuffer);
-		return;
-	}
-
-	error = fc2ConvertImageTo(FC2_PIXEL_FORMAT_MONO8, &latestImage, &latestConvertedImage);       
-        //error = fc2ConvertImageTo(FC2_PIXEL_FORMAT_BGR, &latestImage, &latestConvertedImage);
-	if(error != FC2_ERROR_OK){
-		sprintf(exBuffer, "JNI Exception in PointGrey Interface: %s \"%s\"", "fc2ConvertImageTo returned error", getError(error));
-		(*env)->ThrowNew(env, (*env)->FindClass(env, "java/lang/Exception"), exBuffer);
-		return;
-	}
-        
-/*
-        error = fc2SaveImage( &latestConvertedImage, "fc2TestImage.pgm", FC2_PGM );
-		if ( error != FC2_ERROR_OK )
-		{
-			printf( "Error in fc2SaveImage: %d\n", error );
-			printf( "Please check write permissions.\n");
-		}
-
-*/
-        /*
-	//Restore latestConvertedImageData to its un-javafied state.
-	error = fc2SetImageData(&latestConvertedImage, NULL, 0);
-	if(error != FC2_ERROR_OK){
-		sprintf(exBuffer, "JNI Exception in PointGrey Interface: %s \"%s\"", "fc2SetImageData returned error", getError(error));
-		(*env)->ThrowNew(env, (*env)->FindClass(env, "java/lang/Exception"), exBuffer);
-		return;
-	}
-
-	//And give Java back its garbage so that it can collect it
-	(*env)->ReleaseByteArrayElements(env, byteArray, bufferPtr, 0); // a bit of cleanup
-*/
-        
-/*
-        	bufferPtr = (*env)->GetByteArrayElements(env, byteArray, NULL);
-        
-        C_convertedImagePData = latestImage.pData;
-	C_convertedImageDataSize = latestImage.dataSize;
-
-	error = fc2SetImageData(&latestImage, (unsigned char*)bufferPtr, (*env)->GetArrayLength(env, byteArray));
-	if(error != FC2_ERROR_OK){
-		sprintf(exBuffer, "JNI Exception in PointGrey Interface: %s \"%s\"", "fc2ImageData returned error", getError(error));
-		(*env)->ThrowNew(env, (*env)->FindClass(env, "java/lang/Exception"), exBuffer);
-		return;
-	}
-        
-        error = fc2RetrieveBuffer(context, &latestImage);
-	if(error != FC2_ERROR_OK){
-		sprintf(exBuffer, "JNI Exception in PointGrey Interface: %s \"%s\"", "fc2RetrieveBuffer returned error", getError(error));
-		(*env)->ThrowNew(env, (*env)->FindClass(env, "java/lang/Exception"), exBuffer);
-		return;
-	}
-        error = fc2SaveImage( &latestImage, "fc2TestImage.pgm", FC2_PGM );
-		if ( error != FC2_ERROR_OK )
-		{
-			printf( "Error in fc2SaveImage: %d\n", error );
-			printf( "Please check write permissions.\n");
-		}
-        
-        
-        //Restore latestConvertedImageData to its un-javafied state.
-	error = fc2SetImageData(&latestImage, NULL, 0);
-	if(error != FC2_ERROR_OK){
-		sprintf(exBuffer, "JNI Exception in PointGrey Interface: %s \"%s\"", "fc2SetImageData returned error", getError(error));
-		(*env)->ThrowNew(env, (*env)->FindClass(env, "java/lang/Exception"), exBuffer);
-		return;
-	}
-        
-        //And give Java back its garbage so that it can collect it
-	(*env)->ReleaseByteArrayElements(env, byteArray, bufferPtr, 0); // a bit of cleanup
-*/
 }
 
 JNIEXPORT jstring JNICALL Java_com_pointgrey_api_PointGreyCameraInterface_getCameraName(JNIEnv *env, jclass thisClass){

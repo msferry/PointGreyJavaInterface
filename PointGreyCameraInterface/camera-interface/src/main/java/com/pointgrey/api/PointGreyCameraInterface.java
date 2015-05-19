@@ -26,7 +26,7 @@ public class PointGreyCameraInterface {
 	private static synchronized native String getCameraName();
 	private static synchronized native long getSerialFromIndex(long index);
 	private static synchronized native void connectCameraWithSerial(long serial);
-	private static synchronized native int[] getSupportedModes(); //Returns an array containing supported camera modes in this format {(VideoMode, FrameRateMode)} where VideoMode and FrameRateMode are enumeration values from C.
+	//private static synchronized native int[] getSupportedModes(); //Returns an array containing supported camera modes in this format {(VideoMode, FrameRateMode)} where VideoMode and FrameRateMode are enumeration values from C.
 	private static synchronized native void setCameraMode(int VideoMode, int FrameRateMode);
 	private static synchronized native PGPropertyInfo getPropertyInfo(int PropertyType);
 	private static synchronized native PGProperty getProperty(int PropertyType);
@@ -102,25 +102,25 @@ public class PointGreyCameraInterface {
 		}
 	}
 	
-	public static synchronized PGCameraMode[] getSupportedCameraModes() {
-		LinkedList<PGCameraMode> retList = new LinkedList<>();
-		int[] supportedModes = null;
-		
-		try {
-			supportedModes = getSupportedModes();
-		} catch(Exception e) {
-			reconnect();
-			supportedModes = getSupportedModes();
-		}
-
-		for (int i = 0; i < supportedModes.length; i += 2) {
-			if (!PGVideoMode.values()[supportedModes[i]].toString().contains("Y16")) { //Remove Y16 formats. Just because nobody supports it doesn't mean that we should.
-				retList.add(new PGCameraMode(PGVideoMode.values()[supportedModes[i]], PGFrameRateMode.values()[supportedModes[i + 1]]));
-			}
-		}
-
-		return retList.toArray(new PGCameraMode[retList.size()]);
-	}
+//	public static synchronized PGCameraMode[] getSupportedCameraModes() {
+//		LinkedList<PGCameraMode> retList = new LinkedList<>();
+//		int[] supportedModes = null;
+//		
+//		try {
+//			supportedModes = getSupportedModes();
+//		} catch(Exception e) {
+//			reconnect();
+//			supportedModes = getSupportedModes();
+//		}
+//
+//		for (int i = 0; i < supportedModes.length; i += 2) {
+//			if (!PGVideoMode.values()[supportedModes[i]].toString().contains("Y16")) { //Remove Y16 formats. Just because nobody supports it doesn't mean that we should.
+//				retList.add(new PGCameraMode(PGVideoMode.values()[supportedModes[i]], PGFrameRateMode.values()[supportedModes[i + 1]]));
+//			}
+//		}
+//
+//		return retList.toArray(new PGCameraMode[retList.size()]);
+//	}
 
 	public static synchronized PGPropertyInfo getPropertyInfo(PGPropertyType propertyType) {
 		PGPropertyInfo info;

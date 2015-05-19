@@ -7,28 +7,30 @@ package com.pointgrey.api;
  * @author Matt
  */
 public class PGCameraMode {
-	private final PGFrameRateMode frameRateMode;
-	private final PGVideoMode videoMode;
 
-	public PGCameraMode(PGVideoMode videoMode, PGFrameRateMode frameRateMode){
-		this.frameRateMode = frameRateMode;
-		this.videoMode = videoMode;
-	}
+    private final PGFrameRateMode frameRateMode;
+    private final PGVideoMode videoMode;
 
-	public PGFrameRateMode getFrameRateMode(){
-		return frameRateMode;
-	}
+    public PGCameraMode(PGVideoMode videoMode, PGFrameRateMode frameRateMode) {
+        this.frameRateMode = frameRateMode;
+        this.videoMode = videoMode;
+    }
 
-	public PGVideoMode getVideoMode(){
-		return videoMode;
-	}
+    public PGFrameRateMode getFrameRateMode() {
+        return frameRateMode;
+    }
 
-	public int getNeededByteBufferSize(){ //The camera currently always returns in BGR format, so it's always 3 bytes per pixels until this is changed.
-		return videoMode.getWidth() * videoMode.getHeight() * 3;
-	}
+    public PGVideoMode getVideoMode() {
+        return videoMode;
+    }
 
-	@Override
-	public String toString(){
-		return "Video Mode: " + videoMode + " FrameRate Mode: " + frameRateMode + " Resolution (" + videoMode.getWidth() + ", " + videoMode.getHeight() + ")";
-	}
+    public int getNeededByteBufferSize() { 
+        int bytesPerPixel = (int) Math.ceil(videoMode.getBitsPerPixel() / 8.0);
+        return videoMode.getWidth() * videoMode.getHeight() * bytesPerPixel;
+    }
+
+    @Override
+    public String toString() {
+        return "Video Mode: " + videoMode + " FrameRate Mode: " + frameRateMode + " Resolution (" + videoMode.getWidth() + ", " + videoMode.getHeight() + ")";
+    }
 }

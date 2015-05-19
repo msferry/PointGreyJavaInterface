@@ -100,8 +100,8 @@ JNIEXPORT jstring JNICALL Java_com_pointgrey_api_PointGreyCameraInterface_getCam
  * Method:    getSupportedModes
  * Signature: ()[I
  */
-JNIEXPORT jintArray JNICALL Java_com_pointgrey_api_PointGreyCameraInterface_getSupportedModes
-  (JNIEnv *, jclass);
+//JNIEXPORT jintArray JNICALL Java_com_pointgrey_api_PointGreyCameraInterface_getSupportedModes
+//  (JNIEnv *, jclass);
 
 /*
  * Class:     com_pointgrey_api_PointGreyCameraInterface
